@@ -16,9 +16,18 @@ io.on('connection', (socket) => {
     console.log('New WebSocket Connection.')
 
     socket.emit('message', 'Welcome!')
+    socket.broadcast.emit('message', 'User joined your channel.')
 
     socket.on('sendMessage', (message) => {
         io.emit('message', message)
+    })
+
+    socket.on('sendLocation', (location) => {
+        io.emit('message', `https://google.com/maps/?q=${location.latitude},${location.longitude}`)
+    })
+
+    socket.on('disconnect', () => {
+        io.emit('message', 'User left your channel.')
     })
 })
 
