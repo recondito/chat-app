@@ -17,9 +17,13 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
     console.log('New WebSocket Connection.')
 
-    socket.emit('message', generateMessage('Welcome!'))
-    socket.broadcast.emit('message', generateMessage('User joined your channel.'))
+    socket.on('join', ({ username, room }) => {
+        socket.join(room)
 
+        socket.emit('message', generateMessage('Welcome!'))
+        socket.broadcast.to(room).emit('message', generateMessage(`${username} joined your channel.`))
+    })
+    
     socket.on('sendMessage', (message, callback) => {
         const filter = new Filter()
 
@@ -27,7 +31,7 @@ io.on('connection', (socket) => {
             return callback('Profanity is not allowed.')
         }
 
-        io.emit('message', generateMessage(message))
+        io.to('Somewhere').emit('message', generateMessage(message))
         callback()
     })
 
